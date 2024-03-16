@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Gradient Generator</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="colors">
+        <input type="color" id="color-a" value="#7986cb" />
+        <input type="color" id="color-b" value="#1a237e" />
+      </div>
+
+      <div class="buttons">
+        <button onclick="setDirection('to top', this)">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="active" onclick="setDirection('to bottom', this)">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+        <button onclick="setDirection('to right', this)">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button onclick="setDirection('to left', this)">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <button class="rotate-icon" onclick="setDirection('to top right', this)">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <button class="rotate-icon" onclick="setDirection('to bottom left', this)">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+        <button class="rotate-icon" onclick="setDirection('to bottom right', this)">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button class="rotate-icon" onclick="setDirection('to top left', this)">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+      </div>
+
+      <button id="randomize" onclick="randomizeColors()">ランダム生成</button>
+
+      <div class="output">
+        <textarea id="code" rows="2" readonly></textarea>
+        <button id="copy" onclick="copyText()">コピー</button>
+      </div>
+    </div>
+
+    <div id="toast" class="hide">コピーが成功しました！</div>
+
+    <script src="index.js"></script>
+  </body>
+</html>

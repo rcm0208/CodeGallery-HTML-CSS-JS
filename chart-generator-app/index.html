@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Chart Generator App</title>
+  </head>
+  <body>
+    <div class="container">
+      <button onclick="downloadChart()" class="btn download-btn">ダウンロード</button>
+      <div class="chart-container">
+        <div id="canvas-container"></div>
+      </div>
+
+      <div class="controls">
+        <select id="chartType" class="select">
+          <option value="bar">棒グラフ</option>
+          <option value="line">折れ線グラフ</option>
+          <option value="pie">円グラフ</option>
+          <option value="doughnut">ドーナツグラフ</option>
+          <option value="radar">レーダーグラフ</option>
+        </select>
+        <input type="text" id="labelInput" class="input" placeholder="ラベル" />
+        <input type="number" id="dataInput" class="input" placeholder="データ" />
+        <button onclick="addData()" class="btn">データ追加</button>
+        <button onclick="updateChartType()" class="btn">チャートタイプ変更</button>
+        <button onclick="resetData()" class="btn-reset">リセット</button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
