@@ -77,6 +77,7 @@ function randomTetromino() {
 
 // 最初のテトリミノを決定
 let currentTetromino = randomTetromino();
+let currentGhostTetromino;
 
 // 操作中のテトリミノを描画
 function drawTetromino() {
@@ -84,7 +85,6 @@ function drawTetromino() {
   const color = currentTetromino.color;
   const row = currentTetromino.row;
   const col = currentTetromino.col;
-
   for (let r = 0; r < shape.length; r++) {
     for (let c = 0; c < shape[r].length; c++) {
       if (shape[r][c]) {
@@ -144,7 +144,6 @@ function canTetrominoRotate() {
       if (rotatedShape[i][j] !== 0) {
         let row = currentTetromino.row + i;
         let col = currentTetromino.col + j;
-
         if (
           row >= BOARD_HEIGHT ||
           col < 0 ||
@@ -170,39 +169,30 @@ function lockTetromino() {
       }
     }
   }
-
   let rowsCleared = clearRows();
   if (rowsCleared > 0) {
   }
-
   currentTetromino = randomTetromino();
 }
 
 // 行が埋まっている場合は削除
 function clearRows() {
   let rowsCleared = 0;
-
   for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
     let rowFilled = true;
-
     for (let x = 0; x < BOARD_WIDTH; x++) {
       if (board[y][x] === 0) {
         rowFilled = false;
         break;
       }
     }
-
     if (rowFilled) {
-      breakSound.muted = false;
-      breakSound.play();
       rowsCleared++;
-
       for (let yy = y; yy > 0; yy--) {
         for (let x = 0; x < BOARD_WIDTH; x++) {
           board[yy][x] = board[yy - 1][x];
         }
       }
-
       for (let x = 0; x < BOARD_WIDTH; x++) {
         board[0][x] = 0;
       }
@@ -220,7 +210,6 @@ function clearRows() {
           }
         }
       }
-
       y++;
     }
   }
@@ -240,6 +229,7 @@ function rotateTetromino() {
     eraseTetromino();
     currentTetromino.shape = rotatedShape;
     drawTetromino();
+    moveGhostTetromino();
   }
 }
 
@@ -247,7 +237,6 @@ function rotateTetromino() {
 function moveTetromino(direction) {
   let row = currentTetromino.row;
   let col = currentTetromino.col;
-
   if (direction === 'left') {
     if (canTetrominoMove(0, -1)) {
       eraseTetromino();
@@ -275,6 +264,8 @@ function moveTetromino(direction) {
       lockTetromino();
     }
   }
+
+  moveGhostTetromino();
 }
 
 // 初期のテトリミノを描画
@@ -283,9 +274,82 @@ drawTetromino();
 // 0.5秒間に1回テトリミノを移動
 setInterval(moveTetromino, 500);
 
+// テトリミノの落下位置を示すブロックを描画
+function drawGhostTetromino() {
+  const shape = currentGhostTetromino.shape;
+  const color = 'rgba(255, 255, 255, 0.5)';
+  const row = currentGhostTetromino.row;
+  const col = currentGhostTetromino.col;
+  for (let r = 0; r < shape.length; r++) {
+    for (let c = 0; c < shape[r].length; c++) {
+      if (shape[r][c]) {
+        const block = document.createElement('div');
+        block.classList.add('ghost');
+        block.style.backgroundColor = color;
+        block.style.top = (row + r) * 24 + 'px';
+        block.style.left = (col + c) * 24 + 'px';
+        block.setAttribute('id', `ghost-${row + r}-${col + c}`);
+        document.getElementById('game_board').appendChild(block);
+      }
+    }
+  }
+}
+
+// テトリミノの落下位置を示すブロックを削除
+function eraseGhostTetromino() {
+  const ghost = document.querySelectorAll('.ghost');
+  for (let i = 0; i < ghost.length; i++) {
+    ghost[i].remove();
+  }
+}
+
+// テトリミノの落下位置を示すブロックが移動できるか確認
+function canGhostTetromino(rowOffset, colOffset) {
+  for (let i = 0; i < currentGhostTetromino.shape.length; i++) {
+    for (let j = 0; j < currentGhostTetromino.shape[i].length; j++) {
+      if (currentGhostTetromino.shape[i][j] !== 0) {
+        let row = currentGhostTetromino.row + i + rowOffset;
+        let col = currentGhostTetromino.col + j + colOffset;
+        if (
+          row >= BOARD_HEIGHT ||
+          col < 0 ||
+          col >= BOARD_WIDTH ||
+          (row >= 0 && board[row][col] !== 0)
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+// テトリミノの落下位置を示すブロックを再計算して描画
+function moveGhostTetromino() {
+  eraseGhostTetromino();
+  currentGhostTetromino = { ...currentTetromino };
+  while (canGhostTetromino(1, 0)) {
+    currentGhostTetromino.row++;
+  }
+  drawGhostTetromino();
+}
+
+// テトリミノを落下
+function dropTetromino() {
+  let row = currentTetromino.row;
+  let col = currentTetromino.col;
+  while (canTetrominoMove(1, 0)) {
+    eraseTetromino();
+    row++;
+    currentTetromino.col = col;
+    currentTetromino.row = row;
+    drawTetromino();
+  }
+  lockTetromino();
+}
+
 // キー入力に応じてテトリミノを移動
 document.addEventListener('keydown', handleKeyPress);
-
 function handleKeyPress(event) {
   switch (event.keyCode) {
     case 37:
@@ -301,7 +365,7 @@ function handleKeyPress(event) {
       rotateTetromino(); // 回転
       break;
     case 32:
-      //TODO: スペースキーが押された時の動作を定義する
+      dropTetromino(); // 自動落下
       break;
   }
 }
