@@ -1,1 +1,1 @@
-# CodeGallery
+# CodeGallery-HTML-CSS-JS
